@@ -1,0 +1,21 @@
+{
+  "name": "nodejsprojecttemplate_1",
+  "version": "1.0.0",
+  "description": "basic node.js project template v1",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx nodemon src/index.js"
+  },
+  "author": "rethik",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.1.0",
+    "express": "^5.1.0",
+    "http-status-codes": "^2.3.0",
+    "mysql2": "^3.14.2",
+    "nodemon": "^3.1.10",
+    "sequelize": "^6.37.7",
+    "sequelize-cli": "^6.6.3",
+    "winston": "^3.17.0"
+  }
+}
