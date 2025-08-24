@@ -1,3 +1,4 @@
 module.exports = {
-    BookingMiddlewares : require('./booking')
+    BookingMiddlewares : require('./booking'),
+    PaymentMiddlewares : require('./payment')
 }

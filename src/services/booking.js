@@ -27,7 +27,6 @@ async function createBooking(data){
         // Step 4 : Create the booking 
         const totalCost = flight.price * numberOfSeats;
         const bookingPayload = {flightId, userId, noOfSeats : numberOfSeats, totalCost};
-        console.log(bookingPayload);
         const booking = await bookingRepository.create(bookingPayload, txn);
 
         // Step 5 : reduce the number of seats

@@ -1,3 +1,4 @@
 module.exports = {
-    BookingService : require('./booking.js')
+    BookingService : require('./booking.js'),
+    PaymentService : require('./payment.js')
 }

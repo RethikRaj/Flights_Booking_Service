@@ -1,4 +1,5 @@
 module.exports = {
     PingController : require('./pingController'),
-    BookingController : require('./booking')
+    BookingController : require('./booking'),
+    PaymentController : require('./payment')
 }
