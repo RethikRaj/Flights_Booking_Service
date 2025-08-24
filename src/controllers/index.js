@@ -1,4 +1,4 @@
-
 module.exports = {
-    PingController : require('./pingController')
+    PingController : require('./pingController'),
+    BookingController : require('./booking')
 }
