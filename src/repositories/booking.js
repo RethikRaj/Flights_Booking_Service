@@ -20,6 +20,11 @@ class BookingRepository extends CrudRepository{
         return response;
     }
 
+    async getAll(customFilterObj,transaction){
+        const response = await Booking.findAll({where : customFilterObj},{transaction : transaction});
+        return response;
+    }
+
     async update(id, data, transaction){
         const response = await Booking.update(data, {
             where : {

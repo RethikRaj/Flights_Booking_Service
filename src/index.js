@@ -1,6 +1,7 @@
 const express = require('express');
 const { ServerConfig , Logger} = require('./config'); // ./config/index.js == ./config
-const apiRoutes = require('./routers')
+const apiRoutes = require('./routers');
+const CronJobs = require('./utils/common/cronJobs')
 
 const app = express();
 
@@ -11,4 +12,5 @@ app.use('/api', apiRoutes);
 
 app.listen(ServerConfig.PORT, ()=>{
     console.log(`Server is running on port ${ServerConfig.PORT}`);
+    CronJobs();
 })

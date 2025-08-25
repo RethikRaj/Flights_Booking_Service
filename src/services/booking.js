@@ -5,7 +5,8 @@ const {sequelize} = require('../models');
 const {BookingRepository} = require('../repositories');
 const { ServerConfig } = require('../config')
 const {Enums} = require('../utils/common');
-const {CANCELLED} = Enums.BOOKING_STATUS;
+const { Op } = require("sequelize");
+const {CANCELLED, BOOKED} = Enums.BOOKING_STATUS;
 const bookingRepository = new BookingRepository();
 
 async function createBooking(data){
@@ -103,7 +104,50 @@ async function cancelBooking(bookingId){
     }
 }
 
+async function cancelAllOldBookings(){
+    const txn = await sequelize.transaction();
+    try {
+        // Find Bookings that are old -> Meaning they are initiated/pending state for more than 10 minutes
+        const timeTenMinutesAgo = new Date(new Date().getTime() - (10*60*1000));
+        const filterObj = { 
+            [Op.and] : [
+                {
+                    status : {
+                        [Op.ne] : BOOKED
+                    }
+                },
+                {
+                    status : {
+                        [Op.ne] : CANCELLED
+                    }
+                },
+                {
+                    createdAt : {
+                        [Op.lt] : timeTenMinutesAgo
+                    }
+                }
+            ]
+        }
+        const oldBookings = await bookingRepository.getAll(filterObj, txn);
+        // Dont use forEach because it does not wait for the async function
+        for (const booking of oldBookings) {
+            const bookingId = booking.dataValues.id;
+            await cancelBooking(bookingId, txn);
+        }
+
+        await txn.commit();
+    } catch (error) {
+        console.log(error);
+        await txn.rollback();
+        if(error instanceof AppError){
+            throw error;
+        }
+        throw new AppError(error, StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
 module.exports = {
     createBooking,
-    cancelBooking
+    cancelBooking,
+    cancelAllOldBookings
 }
