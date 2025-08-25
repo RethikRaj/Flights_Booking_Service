@@ -8,7 +8,8 @@ async function makePayment(req, res) {
         const response = await PaymentService.makePayment({
             bookingId : req.body.bookingId,
             amount : req.body.amount,
-            userId : req.body.userId
+            userId : req.body.userId,
+            idempotencyKey : req.headers['x-idempotency-key']
         });
 
         SuccessResponse.data = response;
