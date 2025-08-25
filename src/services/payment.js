@@ -39,7 +39,7 @@ async function makePayment(data){
         // if booking not succesful -> We dont mark it as cancelled, user might retry it again , ...
 
         await txn.commit();
-    } catch (error) {x
+    } catch (error) {
         await txn.rollback();
         if(error instanceof AppError){
             throw error;
