@@ -3,7 +3,7 @@ const {BookingService} = require('../../services');
 
 function scheduleCrons(){
     // For every 10 mins cancel all old bookings
-    cron.schedule('*/10 * * * * *', () => {
+    cron.schedule('*/10 * * * *', () => {
         BookingService.cancelAllOldBookings();
     });
 }
