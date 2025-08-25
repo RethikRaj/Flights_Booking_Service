@@ -4,7 +4,8 @@ const axios  = require("axios");
 const {sequelize} = require('../models');
 const {BookingRepository} = require('../repositories');
 const { ServerConfig } = require('../config')
-
+const {Enums} = require('../utils/common');
+const {CANCELLED} = Enums.BOOKING_STATUS;
 const bookingRepository = new BookingRepository();
 
 async function createBooking(data){
@@ -69,6 +70,40 @@ async function createBooking(data){
     }
 }
 
+async function cancelBooking(bookingId){
+    const txn = await sequelize.transaction();
+    try {
+        // get booking deltails
+        const bookingDetails = await bookingRepository.get(bookingId, txn);
+        if(bookingDetails.status == CANCELLED){
+            await txn.commit();
+            return true;
+        }
+
+        // Increase the number of seats
+        await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${bookingDetails.flightId}/seats`, {
+            numberOfSeats : bookingDetails.noOfSeats,
+            decrease : false
+        });
+
+        // TODO : What if after increasing the number of seats, just after that our booking microservice server becomes down or network fails
+
+        // update the status of the booking to cancelled
+        await bookingRepository.update(bookingId, {status : CANCELLED}, txn);
+        await txn.commit();
+        return true;
+
+    } catch (error) {
+        await txn.rollback();
+        if(error instanceof AppError){
+            throw error;
+        }
+        // To get the error thrown from the other microservice , do as below
+        throw new AppError(error, StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
 module.exports = {
-    createBooking
+    createBooking,
+    cancelBooking
 }

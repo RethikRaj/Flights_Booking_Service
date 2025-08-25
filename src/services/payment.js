@@ -1,8 +1,9 @@
 const { StatusCodes } = require('http-status-codes');
 const { sequelize } = require('../models');
 const { BookingRepository } = require('../repositories');
-const {Enums} = require('../utils/common');
+const { cancelBooking } = require('./booking');
 const AppError = require('../utils/errors/appError');
+const {Enums} = require('../utils/common');
 const {CANCELLED, BOOKED} = Enums.BOOKING_STATUS;
 
 const bookingRepository = new BookingRepository();
@@ -28,8 +29,8 @@ async function makePayment(data){
         const bookingTime = new Date(bookingDetails.createdAt);
         if(currentTime - bookingTime > 10 * 60 * 1000){ // 10 minutes
             // Cancel booking 
-
-            throw new AppError(['The booking is expired'], StatusCodes.PAYMENT_REQUIRED);
+            await cancelBooking(bookingId);
+            throw new AppError(['The booking is expired'], StatusCodes.BAD_REQUEST);
         }
 
         // Make payment
