@@ -4,6 +4,7 @@ const { BookingRepository } = require('../repositories');
 const { cancelBooking } = require('./booking');
 const AppError = require('../utils/errors/appError');
 const {Enums} = require('../utils/common');
+const { AMQPConfig } = require('../config');
 const {CANCELLED, BOOKED} = Enums.BOOKING_STATUS;
 
 const bookingRepository = new BookingRepository();
@@ -47,9 +48,15 @@ async function makePayment(data){
 
         // if payment is successful -> We need to update the status of booking from initiated to booked
         await bookingRepository.update(bookingId, {status : BOOKED}, txn);
-        // if booking not succesful -> We dont mark it as cancelled, user might retry it again , ...
+        // if payment not successful -> We dont mark it as cancelled, user might retry it again , ...
 
         await txn.commit();
+
+        AMQPConfig.sendData({
+            subject : 'BOOKING_CONFIRMED',
+            email : 'rethikraj.c@gmail.com',
+            text : `Your booking is confirmed. Booking ID : ${bookingId}`
+        });
 
         const response = { message: "Payment successful", bookingId };
         inMemDB.add(idempotencyKey);

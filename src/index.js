@@ -1,5 +1,5 @@
 const express = require('express');
-const { ServerConfig , Logger, SwaggerConfig} = require('./config'); // ./config/index.js == ./config
+const { ServerConfig , Logger, SwaggerConfig, AMQPConfig } = require('./config'); // ./config/index.js == ./config
 const apiRoutes = require('./routers');
 const CronJobs = require('./utils/common/cronJobs')
 
@@ -16,7 +16,9 @@ app.use('/api-docs', SwaggerConfig.swaggerUi.serve, SwaggerConfig.swaggerUi.setu
 
 app.use('/api', apiRoutes);
 
-app.listen(ServerConfig.PORT, ()=>{
+app.listen(ServerConfig.PORT, async ()=>{
     console.log(`Server is running on port ${ServerConfig.PORT}`);
     CronJobs();
+    await AMQPConfig.connectQueue();
+    console.log("Connected to RabbitMQ");
 })
