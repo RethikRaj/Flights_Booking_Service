@@ -4,7 +4,7 @@ const AppError = require("../utils/errors/appError");
 
 function validateCreateRequest(req,res,next){
     const {flightId, userId, numberOfSeats} = req.body;
-
+    console.log("Validating create booking request");
     if(flightId && userId && numberOfSeats){
         next();
     }else{

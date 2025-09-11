@@ -14,7 +14,7 @@ const bookingRepository = new BookingRepository();
 const inMemDB = new Set();
 
 async function makePayment(data){
-    const { bookingId, amount, userId, idempotencyKey } = data; // amount-> entered by user while he tries to pay
+    const { bookingId, amount, userId, idempotencyKey, userEmail } = data; // amount-> entered by user while he tries to pay
     const txn = await sequelize.transaction();
     try {
         // Step 1 : Check whether idempotencyKey exists
@@ -52,9 +52,10 @@ async function makePayment(data){
 
         await txn.commit();
 
+        // Send notification to the actual user's email
         AMQPConfig.sendData({
             subject : 'BOOKING_CONFIRMED',
-            email : 'rethikraj.c@gmail.com',
+            email : userEmail || 'noreply@airline.com', // Fallback email if userEmail is not provided
             text : `Your booking is confirmed. Booking ID : ${bookingId}`
         });
 
